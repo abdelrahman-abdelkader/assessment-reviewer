@@ -1,0 +1,138 @@
+<svg viewBox="0 0 780 1020" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui, sans-serif" font-size="13">
+  <title>Assessment Reviewer Skill — Logic Flow</title>
+  <desc>Flowchart showing the full logic of the assessment-reviewer skill from CSV input through interactive review to two output files.</desc>
+
+  <defs>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#6b7280"/>
+    </marker>
+    <marker id="arr-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#16a34a"/>
+    </marker>
+    <marker id="arr-red" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect width="780" height="1020" fill="#ffffff"/>
+
+  <!-- STEP 1: INPUT -->
+  <rect x="280" y="20" width="220" height="48" rx="8" fill="#1e40af"/>
+  <text x="390" y="40" text-anchor="middle" fill="white" font-weight="600" font-size="13">Input CSV File</text>
+  <text x="390" y="58" text-anchor="middle" fill="#bfdbfe" font-size="11">4 rows per question</text>
+
+  <line x1="390" y1="68" x2="390" y2="95" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- STEP 2: GROUP -->
+  <rect x="280" y="96" width="220" height="44" rx="8" fill="#374151"/>
+  <text x="390" y="115" text-anchor="middle" fill="white" font-weight="600">Group by question_content</text>
+  <text x="390" y="131" text-anchor="middle" fill="#d1d5db" font-size="11">Reconstruct complete questions</text>
+
+  <line x1="390" y1="140" x2="390" y2="167" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- STEP 3: MODE DETECTION -->
+  <polygon points="390,168 520,210 390,252 260,210" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="390" y="205" text-anchor="middle" fill="#92400e" font-weight="600">Detect Review Mode</text>
+  <text x="390" y="222" text-anchor="middle" fill="#92400e" font-size="11">difficultyLevelId / partTitle</text>
+
+  <!-- Mode 1 branch -->
+  <line x1="260" y1="210" x2="120" y2="210" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="188" y="203" text-anchor="middle" fill="#6b7280" font-size="11">Fluency / TQ / Discovery</text>
+  <rect x="20" y="226" width="200" height="44" rx="8" fill="#e0f2fe" stroke="#0891b2" stroke-width="1.5"/>
+  <text x="120" y="245" text-anchor="middle" fill="#164e63" font-weight="600">Mode 1</text>
+  <text x="120" y="261" text-anchor="middle" fill="#164e63" font-size="11">Non-Technical</text>
+
+  <!-- Mode 2 branch -->
+  <line x1="520" y1="210" x2="660" y2="210" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="592" y="203" text-anchor="middle" fill="#6b7280" font-size="11">Practitioner / Nano</text>
+  <rect x="560" y="226" width="200" height="44" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="660" y="245" text-anchor="middle" fill="#3b0764" font-weight="600">Mode 2</text>
+  <text x="660" y="261" text-anchor="middle" fill="#3b0764" font-size="11">Technical / Practitioner</text>
+
+  <!-- Mode 1 checks -->
+  <line x1="120" y1="270" x2="120" y2="300" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="20" y="301" width="200" height="116" rx="8" fill="#f0f9ff" stroke="#0891b2" stroke-width="1.2"/>
+  <text x="120" y="321" text-anchor="middle" fill="#0c4a6e" font-weight="600" font-size="12">Checks Applied</text>
+  <text x="35" y="341" fill="#164e63" font-size="11">• Wrong Answer</text>
+  <text x="35" y="357" fill="#164e63" font-size="11">• Ambiguous choices</text>
+  <text x="35" y="373" fill="#164e63" font-size="11">• Duplicate choices</text>
+  <text x="35" y="389" fill="#164e63" font-size="11">• Q-A mismatch</text>
+  <text x="35" y="405" fill="#164e63" font-size="11">• Absolute language</text>
+
+  <!-- Mode 2 checks -->
+  <line x1="660" y1="270" x2="660" y2="300" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="560" y="301" width="200" height="148" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.2"/>
+  <text x="660" y="321" text-anchor="middle" fill="#3b0764" font-weight="600" font-size="12">Checks Applied</text>
+  <text x="575" y="341" fill="#3b0764" font-size="11">All Mode 1 checks, plus:</text>
+  <text x="575" y="357" fill="#3b0764" font-size="11">• Categorize question type</text>
+  <text x="575" y="373" fill="#3b0764" font-size="11">• Run code (Bash/Python)</text>
+  <text x="575" y="389" fill="#3b0764" font-size="11">• Unnecessary code block</text>
+  <text x="575" y="405" fill="#3b0764" font-size="11">• Answer giveaway (Q text)</text>
+  <text x="575" y="421" fill="#3b0764" font-size="11">• Answer giveaway (choices)</text>
+  <text x="575" y="437" fill="#3b0764" font-size="11">• Near-duplicate detection</text>
+
+  <!-- Converge -->
+  <line x1="120" y1="417" x2="120" y2="480" stroke="#6b7280" stroke-width="1.5"/>
+  <line x1="120" y1="480" x2="390" y2="480" stroke="#6b7280" stroke-width="1.5"/>
+  <line x1="660" y1="449" x2="660" y2="480" stroke="#6b7280" stroke-width="1.5"/>
+  <line x1="660" y1="480" x2="390" y2="480" stroke="#6b7280" stroke-width="1.5"/>
+  <line x1="390" y1="480" x2="390" y2="507" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="390" y="474" text-anchor="middle" fill="#6b7280" font-size="10">+ pairwise near-duplicate scan across all questions</text>
+
+  <!-- STEP 4: SUMMARY -->
+  <rect x="255" y="508" width="270" height="52" rx="8" fill="#374151"/>
+  <text x="390" y="529" text-anchor="middle" fill="white" font-weight="600">Show Flagged Summary</text>
+  <text x="390" y="547" text-anchor="middle" fill="#d1d5db" font-size="11">All issues listed at once before review</text>
+
+  <line x1="390" y1="560" x2="390" y2="587" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- STEP 5: INTERACTIVE LOOP -->
+  <rect x="200" y="588" width="380" height="148" rx="10" fill="#fefce8" stroke="#ca8a04" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="390" y="610" text-anchor="middle" fill="#713f12" font-weight="700" font-size="13">Interactive Review Loop</text>
+  <text x="390" y="630" text-anchor="middle" fill="#92400e" font-size="11">For each flagged question:</text>
+  <text x="215" y="650" fill="#713f12" font-size="11">Show: full Q + choices + issue + suggested fix</text>
+  <text x="215" y="668" fill="#713f12" font-size="11">User decides:</text>
+  <text x="230" y="685" fill="#16a34a" font-size="11" font-weight="600">1 Accept as-is</text>
+  <text x="350" y="685" fill="#0891b2" font-size="11" font-weight="600">2 Accept with fix</text>
+  <text x="230" y="702" fill="#dc2626" font-size="11" font-weight="600">3 Reject</text>
+  <text x="350" y="702" fill="#6b7280" font-size="11" font-weight="600">4 Skip / DONE</text>
+  <text x="390" y="724" text-anchor="middle" fill="#92400e" font-size="10">Near-duplicates: show both side by side — user picks which to keep</text>
+
+  <line x1="390" y1="736" x2="390" y2="763" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- STEP 6: OUTPUT -->
+  <rect x="255" y="764" width="270" height="44" rx="8" fill="#374151"/>
+  <text x="390" y="783" text-anchor="middle" fill="white" font-weight="600">Write Output Files</text>
+  <text x="390" y="799" text-anchor="middle" fill="#d1d5db" font-size="11">Same folder as input CSV</text>
+
+  <line x1="310" y1="808" x2="180" y2="860" stroke="#16a34a" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <line x1="470" y1="808" x2="600" y2="860" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arr-red)"/>
+
+  <!-- Accepted -->
+  <rect x="60" y="861" width="240" height="60" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="180" y="883" text-anchor="middle" fill="#14532d" font-weight="600">[filename]_accepted.csv</text>
+  <text x="180" y="900" text-anchor="middle" fill="#166534" font-size="11">Clean + user-accepted questions</text>
+  <text x="180" y="916" text-anchor="middle" fill="#166534" font-size="11">Same structure as input</text>
+
+  <!-- Flagged -->
+  <rect x="480" y="861" width="240" height="60" rx="8" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="600" y="883" text-anchor="middle" fill="#7f1d1d" font-weight="600">[filename]_flagged.csv</text>
+  <text x="600" y="900" text-anchor="middle" fill="#991b1b" font-size="11">Rejected questions</text>
+  <text x="600" y="916" text-anchor="middle" fill="#991b1b" font-size="11">+ review_reason column added</text>
+
+  <!-- Legend -->
+  <rect x="20" y="955" width="740" height="48" rx="6" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  <text x="40" y="974" fill="#374151" font-weight="600" font-size="11">Legend</text>
+  <rect x="90" y="963" width="14" height="14" rx="3" fill="#1e40af"/>
+  <text x="110" y="974" fill="#374151" font-size="11">Input / Process</text>
+  <rect x="220" y="963" width="14" height="14" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+  <text x="240" y="974" fill="#374151" font-size="11">Decision</text>
+  <rect x="320" y="963" width="14" height="14" rx="3" fill="#fefce8" stroke="#ca8a04"/>
+  <text x="340" y="974" fill="#374151" font-size="11">Interactive loop</text>
+  <rect x="460" y="963" width="14" height="14" rx="3" fill="#f0fdf4" stroke="#16a34a"/>
+  <text x="480" y="974" fill="#374151" font-size="11">Accepted output</text>
+  <rect x="590" y="963" width="14" height="14" rx="3" fill="#fef2f2" stroke="#dc2626"/>
+  <text x="610" y="974" fill="#374151" font-size="11">Flagged output</text>
+
+  <text x="390" y="1010" text-anchor="middle" fill="#9ca3af" font-size="10">Mode auto-detected from difficultyLevelId · user prompted if ambiguous</text>
+</svg>
