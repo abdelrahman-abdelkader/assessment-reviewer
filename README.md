@@ -2,7 +2,7 @@
 
 ![Assessment Reviewer Flow](diagram.svg)
 
-A Claude Code skill for reviewing the quality of Udacity-based quiz question CSVs. It audits every question for correctness, ambiguity, distractor quality, near-duplicates, and wording issues — then walks you through flagged questions interactively before writing clean output files.
+A Claude Code skill for reviewing the quality of Udacity-based assessment question CSVs. It audits every question for correctness, ambiguity, distractor quality, near-duplicates, and wording issues — then walks you through flagged questions interactively before writing clean output files.
 
 ---
 
@@ -113,7 +113,7 @@ YOUR DECISION:
 /assessment-reviewer path/to/assessment.csv
 ```
 
-Or simply share the CSV file in the conversation — the skill triggers automatically when a quiz question CSV is shared.
+Or simply share the CSV file in the conversation — the skill triggers automatically when an assessment question CSV is shared.
 
 ---
 
