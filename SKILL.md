@@ -201,3 +201,47 @@ Flagged:  [N] questions → [path/to/flagged.csv]
 - If a suggested fix is accepted, apply it only to the specific field (question text or choice text), leaving all other fields untouched
 - If the user types `DONE` at any point during interactive review, treat all remaining flagged questions as accepted as-is
 - Be an expert in the domain being tested — bring actual knowledge, not just structural checks
+
+---
+
+## PRE-WRITE VALIDATION (MANDATORY — runs before writing accepted.csv)
+
+Before writing any output file, run these checks on every question that will land in `accepted.csv`. A question that fails any check must be fixed silently before writing — it does not go back into the interactive review loop.
+
+### 0. Code removal — strip surrounding context lines
+When a code block is removed from `question_content` (either during interactive review or by the truncated-text rule below), also remove any prose lines that existed solely to introduce or reference that code. These lines are meaningless once the code is gone.
+
+**Lines to remove BEFORE the code block** — any sentence that ends in a colon and directly precedes the code, or any sentence whose sole purpose is to announce that code follows:
+- "Consider the following code:" / "Consider the following code snippet:" / "Consider the following Python code example illustrating X:"
+- "Consider the following pseudo-code example of X:"
+- "Consider the following application of X which uses..."
+- "Look at the code below:" / "Given the following code:" / "Review the code snippet below:"
+- "The following code shows..." / "Here is an example:" / "Examine the following:"
+
+**Lines to remove AFTER the code block** — any sentence that refers back to code that no longer exists:
+- Sentences containing: "the code above", "the snippet above", "the example above", "the output of the code", "based on the code", "what does the code", "this approach uses" (when referring to the removed code)
+
+**After stripping**: re-read the full question to confirm it is still self-contained and answerable without the removed lines. If it is not (the question depended entirely on the code to be meaningful), flag the question for rejection instead of writing a broken one.
+
+### 1. Truncated text cleanup
+Scan `question_content` for trailing fragments that indicate the source text was cut off mid-sentence. Remove them silently before writing:
+- Any trailing ` ``` ` or `` ` `` that has no matching opening/closing pair
+- Any text starting with `# ` immediately after an opening `` ``` `` tag with no closing tag (e.g., `` ```python # Example of `` with no `` ``` `` to close it) — remove from the `` ``` `` onwards
+- Any trailing sentence fragment that begins with `Consider the following`, `Imagine`, `For example` but is not followed by a complete scenario (i.e., ends before a full stop or is the last content in the field)
+
+**Rule**: If removing the fragment leaves a well-formed question that still has a correct answer, remove it. If removing it makes the question unanswerable, flag the question for rejection instead.
+
+### 2. Code block formatting in answer choices
+Scan `choice_content` for all 4 choices of each question. If choices use backtick formatting (`` ` `` or `` ``` ``) around plain text method names, framework names, or human-readable terms that are not actual executable code, strip the backticks before writing.
+
+**Examples of what to strip**: `` ```Supervised Fine-Tuning (SFT)``` `` → `Supervised Fine-Tuning (SFT)` | `` `Low-Rank Adaptation (LoRA)` `` → `Low-Rank Adaptation (LoRA)`
+
+**Examples of what to keep**: `` `model.fit()` `` | `` `torch.nn.Linear` `` | any actual Python/code syntax
+
+### 3. Wrong correct answer re-check
+Before writing, re-verify the marked correct answer for every question going into `accepted.csv` using your domain knowledge. Ask yourself: *"If I were a subject-matter expert, would I mark this as the correct answer without hesitation?"*
+
+Flag the question for rejection (rather than silently accepting) if:
+- The correct answer is more accurately described by one of the wrong-answer choices
+- Two of the choices are both valid correct answers for the question as written
+- The question wording is broad enough that "it depends" is the most defensible answer
