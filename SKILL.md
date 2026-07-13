@@ -73,7 +73,19 @@ Apply all Mode 1 checks PLUS:
 
 10. **CODE EXECUTION** — For `Factual/Code` questions: run the code using Bash/Python to verify the marked answer. Never guess. If the code produces a different result, flag as WRONG ANSWER.
 
-11. **UNNECESSARY CODE** — Does a code block in the question add meaningful context, or is it decorative/redundant/truncated? If the question can be understood without it, flag as UNNECESSARY CODE.
+11. **CODE BLOCK EVALUATION** — For every question that contains a code block, apply this decision tree in order:
+
+   **Step 1 — Is the code complete?**
+   Check whether the code block has a proper opening and closing `` ``` ``, contains enough lines to be meaningful, and does not end mid-statement or mid-class definition.
+   - If the code is **truncated or incomplete** → flag as **INCOMPLETE CODE**, regardless of whether it was needed. A partial code block provides zero value and must never be accepted as-is. Suggest rejection.
+
+   **Step 2 — Is the code needed?**
+   Ask: *"Can a learner answer this question correctly without seeing the code block?"*
+   - If **yes** (the question makes full sense in plain text) → flag as **UNNECESSARY CODE**. Suggest removing the code block and keeping the question text only.
+   - If **no** (the code is the scenario, or the question asks about its output/behaviour) → the code is needed. Proceed to Step 3.
+
+   **Step 3 — Keep it**
+   The code is both needed and complete. Accept the question with the code block intact.
 
 12. **ANSWER GIVEAWAY (question)** — Does the code block in the question directly reveal the answer, making domain knowledge unnecessary? Flag as ANSWER GIVEAWAY.
 
@@ -223,13 +235,16 @@ When a code block is removed from `question_content` (either during interactive 
 
 **After stripping**: re-read the full question to confirm it is still self-contained and answerable without the removed lines. If it is not (the question depended entirely on the code to be meaningful), flag the question for rejection instead of writing a broken one.
 
-### 1. Truncated text cleanup
-Scan `question_content` for trailing fragments that indicate the source text was cut off mid-sentence. Remove them silently before writing:
-- Any trailing ` ``` ` or `` ` `` that has no matching opening/closing pair
-- Any text starting with `# ` immediately after an opening `` ``` `` tag with no closing tag (e.g., `` ```python # Example of `` with no `` ``` `` to close it) — remove from the `` ``` `` onwards
-- Any trailing sentence fragment that begins with `Consider the following`, `Imagine`, `For example` but is not followed by a complete scenario (i.e., ends before a full stop or is the last content in the field)
+### 1. Truncated code block handling
+Scan `question_content` for code blocks that are incomplete — no matching closing `` ``` ``, ends mid-statement, or mid-class/function definition.
 
-**Rule**: If removing the fragment leaves a well-formed question that still has a correct answer, remove it. If removing it makes the question unanswerable, flag the question for rejection instead.
+Apply this logic:
+- **If the question can be answered without the code** (the code was decorative) → remove the truncated block silently and apply Rule 0 to strip surrounding intro lines. Write the cleaned question.
+- **If the question cannot be answered without the code** (the code was the scenario) → do NOT write this question to `accepted.csv`. Move it to `flagged.csv` with reason: `INCOMPLETE CODE — code block is truncated and the question depends on it to be answerable`.
+
+Also catch these non-code truncation patterns and remove them silently:
+- Any trailing sentence fragment that begins with `Consider the following`, `Imagine`, `For example` but is not followed by a complete scenario (ends before a full stop or is the last content in the field)
+- Any bare language keyword (`python`, `sql`, `json`, `yaml`, `bash`) on its own line with no surrounding `` ``` `` tags — treat as a malformed truncated block and apply the same logic above
 
 ### 2. Code block formatting in answer choices
 Scan `choice_content` for all 4 choices of each question. If choices use backtick formatting (`` ` `` or `` ``` ``) around plain text method names, framework names, or human-readable terms that are not actual executable code, strip the backticks before writing.
@@ -238,7 +253,33 @@ Scan `choice_content` for all 4 choices of each question. If choices use backtic
 
 **Examples of what to keep**: `` `model.fit()` `` | `` `torch.nn.Linear` `` | any actual Python/code syntax
 
-### 3. Wrong correct answer re-check
+### 3. Code blocks inside answer choices
+Scan all 4 `choice_content` values for each question. If any choice contains an embedded code block (opening `` ``` `` with or without a language tag) or a bare language keyword (`python`, `sql`, `json`, `yaml`, `bash`) followed by code on the next line, remove the code block entirely and keep only the plain text label of that choice.
+
+**Examples**:
+- `Minimizing task interdependencies between agents.\n\n```python\n# Independent tasks running parallelly` → `Minimizing task interdependencies between agents.`
+- `` `Sectioning or Sharding` `` with an appended explanation in parentheses → strip the code block, keep the label
+
+**If removing the code leaves the choice as a blank or meaningless string**, flag the question for rejection — the choice depended entirely on the code to be understood.
+
+Also detect **malformed code block markers** in `question_content` — a bare language keyword (`python`, `sql`, `json`) appearing on its own line with no surrounding `` ``` `` tags. Treat these the same as a truncated code block and remove from that point onwards.
+
+### 4. difficultyLevelId consistency check
+After grouping all questions, collect the unique values of `difficultyLevelId` across the file. If more than one distinct value is found (e.g., `"Intermediate"`, `"medium"`, `"3"`, `"2"`), print a warning before writing:
+
+```
+⚠ WARNING: Inconsistent difficultyLevelId values detected in this file:
+  - "Intermediate" → 52 questions
+  - "medium" → 4 questions
+  - "3" → 6 questions
+  - "2" → 1 question
+These have been written as-is. Please verify with the Udacity platform team
+which value is expected before uploading.
+```
+
+Do not auto-correct the values — write them exactly as they appear in the input. The warning is for the reviewer's awareness only.
+
+### 5. Wrong correct answer re-check
 Before writing, re-verify the marked correct answer for every question going into `accepted.csv` using your domain knowledge. Ask yourself: *"If I were a subject-matter expert, would I mark this as the correct answer without hesitation?"*
 
 Flag the question for rejection (rather than silently accepting) if:
